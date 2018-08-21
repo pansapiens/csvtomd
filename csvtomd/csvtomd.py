@@ -11,6 +11,7 @@ More info: http://github.com/mplewis/csvtomd
 import argparse
 import csv
 import sys
+import codecs
 
 
 DEFAULT_PADDING = 2
@@ -107,7 +108,7 @@ def md_table(table, *, padding=DEFAULT_PADDING, divider='|', header_div='-'):
 
 
 def csv_to_table(file, delimiter):
-    return list(csv.reader(file, delimiter=delimiter))
+    return list(csv.reader(file, delimiter=codecs.decode(delimiter, 'unicode_escape')))
 
 
 def main():
