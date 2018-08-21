@@ -11,7 +11,7 @@ More info: http://github.com/mplewis/csvtomd
 import argparse
 import csv
 import sys
-
+from io import StringIO
 
 DEFAULT_PADDING = 2
 
@@ -109,6 +109,8 @@ def md_table(table, *, padding=DEFAULT_PADDING, divider='|', header_div='-'):
 def csv_to_table(file, delimiter):
     return list(csv.reader(file, delimiter=delimiter))
 
+def escape_pipes(text, replace_with='&#124;'):
+    return text.replace('|', replace_with)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -143,11 +145,19 @@ def main():
         else:
             first = False
         # Read the CSV files
+        text = None
         if filename == '-':
-            table = csv_to_table(sys.stdin, args.delimiter)
+            text = sys.stdin.read()
         else:
             with open(filename, 'rU') as f:
-                table = csv_to_table(f, args.delimiter)
+                text = f.read()
+        
+        if args.delimiter != '|':            
+            text = escape_pipes(text)    
+
+        text = StringIO(escape_pipes(text))
+        table = csv_to_table(text, args.delimiter)
+
         # Print filename for each table if --no-filenames wasn't passed and
         # more than one CSV was provided
         file_count = len(args.files)
